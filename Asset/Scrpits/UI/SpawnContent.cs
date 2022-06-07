@@ -3,24 +3,23 @@ using System.Collections;
 using UnityEngine.UI;
 
 public class SpawnContent : MonoBehaviour {
+    public Image buttonImage;
     public Image image;
     public AtomInfo info;
-    public int id;
+    public Text nameKoText;
+
     public Sprite sprite;
 
     public void setAtomInfo(AtomInfo info){
         this.info = info;
         var sprite = Resources.Load<Sprite>(info.imagePath);
-        image.sprite = sprite;
         this.sprite = sprite;
+        image.sprite = sprite;
+        nameKoText.text = info.name_ko;
     }
 
-    public void grabbed() {
-
-    }
-
-    public void ungrabbed() {
-
+    public void setButtonImage(Sprite sprite) {
+        buttonImage.sprite = sprite;
     }
 
 }

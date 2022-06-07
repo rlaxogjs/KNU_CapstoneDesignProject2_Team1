@@ -11,6 +11,11 @@ public class UIManager : MonoBehaviour {
     public UIDict uiDict;
 
     public GameObject currentUI;
+    public Vector3 originalPosition;
+    public Vector3 originalRotation;
+    public Vector3 kioskPositon;
+    public Vector3 kioskRotation;
+
 
     private void Awake() {
         if(instance == null) {

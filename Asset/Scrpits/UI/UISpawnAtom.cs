@@ -1,40 +1,78 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class UISpawnAtom : MonoBehaviour {
 
-    public AtomInfo[] atomInfos;
+    public List<AtomInfo> atomInfos;
     public SpawnContent[] contents;
     public SpawnInspector inspector;
 
-    public int grabbedContentId;
+    public Sprite normalButtonImage;
+    public Sprite clickedButtonImage;
+    public Text spawnCountText;
+
+    public SpawnContent grabbedContent;
+
+    public UnityEvent expEvent;
+    public bool isfistSpawn = false;
 
     public void onClickedContent(GameObject content) {
         var spawnContent = content.GetComponent<SpawnContent>();
-        if (grabbedContentId >= 0)
-            contents[grabbedContentId].ungrabbed();
-        grabbedContentId = spawnContent.id;
-        contents[grabbedContentId].grabbed();
-        inspector.setContent(contents[grabbedContentId]);
+        if (grabbedContent != null)
+            grabbedContent.setButtonImage(normalButtonImage);
+        grabbedContent = spawnContent;
+        grabbedContent.setButtonImage(clickedButtonImage);
+        inspector.setContent(grabbedContent);
     }
 
     private void OnEnable() {
-        grabbedContentId = -1;
+        if(atomInfos.Count == 0) {
+            atomInfos = new List<AtomInfo>();
+            atomInfos.Add(AtomInfo.getAtomInfo(AtomInfo.ATOM_TYPE.A_CARBON));
+            atomInfos.Add(AtomInfo.getAtomInfo(AtomInfo.ATOM_TYPE.A_CHLORINE));
+            atomInfos.Add(AtomInfo.getAtomInfo(AtomInfo.ATOM_TYPE.A_HELIUM));
+            atomInfos.Add(AtomInfo.getAtomInfo(AtomInfo.ATOM_TYPE.A_HYDROGEN));
+            atomInfos.Add(AtomInfo.getAtomInfo(AtomInfo.ATOM_TYPE.A_NEON));
+            atomInfos.Add(AtomInfo.getAtomInfo(AtomInfo.ATOM_TYPE.A_NITROGEN));
+            atomInfos.Add(AtomInfo.getAtomInfo(AtomInfo.ATOM_TYPE.A_OXYGEN));
+        }
+
         int i = 0;
-        foreach(var info in atomInfos) {
+        foreach (var info in atomInfos) {
             contents[i].gameObject.SetActive(true);
             contents[i].setAtomInfo(info);
-            contents[i].id = i;
             i++;
         }
+
+        grabbedContent = null;
+        inspector.setContent(null);
     }
 
     private void OnDisable() {
-        int i = 0;
-        foreach (var info in atomInfos) {
-            contents[i].gameObject.SetActive(false);
-            i++;
+        foreach (var content in contents) {
+            content.gameObject.SetActive(false);
         }
+    }
+
+    public void onClickedSpawnAtom() {
+        if (grabbedContent == null) return;
+
+        if(isfistSpawn == false) {
+            isfistSpawn = true;
+            expEvent.Invoke();
+        }
+
+        AtomRoot.instance.spawnAtom(grabbedContent.info);
+    }
+
+    private void Update() {
+        var atomCount = AtomRoot.instance.atoms.Count;
+        var molCount = AtomRoot.instance.mols.Count;
+
+        spawnCountText.text = $"생성 원자 : {atomCount}/15 " +
+            $"생성 분자 : {molCount}/5";
     }
 }
